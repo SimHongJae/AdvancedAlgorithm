@@ -7,8 +7,8 @@
 
 int compare_numbers(const void* lhs, const void* rhs);
 int compare_distances(const void* diff, const void* min);
-void merge_conqure(void* arr, int start, int mid, int end, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare);
-void merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare);
+void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare);
+void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare);
 void merge_sort(void *arr, size_t nmemb, size_t size, compare_t compare);
 
 
@@ -204,32 +204,85 @@ int compare_distances(const void* diff, const void* min)
 
 }
 
-void merge_conqure(void* arr, int start, int mid, int end, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare){
+void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare){
 	
+	vec1_t* arr_vec1 = (vec1_t*) arr;
+	vec1_t* a3,b3;
+	float dist1,dist2,dist3;
+
+	*a3= arr_vec1[mid-1];
+	*b3= arr_vec1[mid];
+
+	dist1= fabs(*a1- *a2);
+	dist2= fabs(*a2- *b2);
+	dist3= fabs(*a3- *b3);
+
+	/*****
+	 * 
+	 * 
+	 * 
+	 * 
+	*/
+	float min_dist= min(min(dist1,dist2),dist3);
+
+/****
+ * 
+ * max 비교 하면됨
+ * 
+*/
+/********
+ * 
+ * 
+ * r1, r2, rnew 셋 비교해서
+ * 길이 작은 점들을
+ * a1,b1에 덮어씌우자
+ * 
+ * 
+ * 
+*/
 
 
 
 }
 
-void merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare){
+void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare){
 	
 	if(arr_size!=1){
 		vec1_t* a1, a2;
 		vec1_t* b1, b2;
-		merge_divide(arr, start, arr_size/2, &a1, &b1, compare);
-		merge_divide(arr, start+arr_size/2, (arr_size+1)/2, &a2, &b2, compare);
-		merge_conqure(arr, start, start+arr_size/2, start+arr_size, &a1, &b1, &a2, &b2, compare);
+		vec1_merge_divide(arr, start, arr_size/2, &a1, &b1, compare);
+		vec1_merge_divide(arr, start+arr_size/2, (arr_size+1)/2, &a2, &b2, compare);
+		vec1_merge_conqure(arr, start+arr_size/2, &a1, &b1, &a2, &b2, compare);
+		*a=*a1;
+		*b=*b1;
 	}
 
 	if(arr_size==1){
 		vec1_t* arr_vec1 = (vec1_t*) arr;
 		*a = arr_vec1[start];
 		*b = FLT_MAX;
+
+		/***
+		 * 
+		 * 고민되는게
+		 * a,b에 넘기는 정보를
+		 * start점이라고 넘길까 점의 좌표를 넘길까
+		 * start점이라고 넘기는게 더 정보가 많을테니 start라고 적는게 오히려 좋을 것 같다는 생각
+		 * 최종에는 점의 좌표를 넘겨야하긴함
+		 * 
+		 * 
+		 * 아 근데 start점이라고 넘길 이유가 없음
+		 * 왼쪽에서의 최소거리는 여기이며 그 점은 이곳이다
+		 * 라고만 알고있음 되는거라
+		 * 그냥 좌표 넘기는걸로 하자
+		 * 
+		 * 
+		*/
 	}
 	
 }
 void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float min_distance, size_t size, compare_t compare){
-	merge_divide(arr, 0,nmemb,a,b, compare);
+	vec1_merge_divide(arr, 0,nmemb,a,b, compare);
 
 }
 /********
@@ -248,21 +301,6 @@ void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float min_distance, s
 
 */
 
-
-/****
- * 
- * 잘 모르긴 하지만 points[i].x 를 points+dimension*k+i라 하자
- * 
- * 
- * 
- * .x를 없애는 방법을 찾아야함
- * 
- * 
- *  아 뭔가 굉장히 미안해지는데
- *  하기가 힘들다
- * 뭔얘기를 어떻게 해야할까
- * ㅠ 
-*/
 
 
 /*
