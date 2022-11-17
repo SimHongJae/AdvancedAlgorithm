@@ -4,11 +4,12 @@
 #include "kernel.h"
 
 
+
 int compare_numbers(const void* lhs, const void* rhs);
 int compare_distances(const void* diff, const void* min);
-void merge_conqure(void* arr, int start, int mid, int end,size_t size,int (*compare)(const void *,const void *));
-void merge_divide(void *arr, int start, int arr_size,size_t size,int (*compare)(const void *,const void *));
-void merge_sort(void *arr, size_t nmemb, size_t size, int (*compare)(const void *,const void *));
+void merge_conqure(void* arr, int start, int mid, int end, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare);
+void merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare);
+void merge_sort(void *arr, size_t nmemb, size_t size, compare_t compare);
 
 
 float get_closest_pair_1d_naive(vec1_t* a, vec1_t* b, const vec1_t* points, const int n_points) {
@@ -38,10 +39,9 @@ float get_closest_pair_1d_daq(vec1_t* a, vec1_t* b, const vec1_t* points, const 
 
 
 
-	
 
-	qsort(points, n_points,sizeof(float), compare_numbers);
-	min_distance= daq_1d((points, n_points,sizeof(vec1_t), compare_distances,min_distance);
+	qsort(points, n_points,sizeof(vec1_t), compare_numbers);
+	daq_1d(points, n_points,sizeof(vec1_t), compare_distances,a,b,min_distance);
 
 
 	// TODO: Fill this!
@@ -204,55 +204,49 @@ int compare_distances(const void* diff, const void* min)
 
 }
 
-void merge_conqure(void* arr, int start, int mid, int end,size_t size,int (*compare)(const void *,const void *)){
-	int i=0, j=0, k=0;
-	int arr_size= end-start;
+void merge_conqure(void* arr, int start, int mid, int end, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare){
 	
-	char* arr_1 = (char*)arr;
-	void* new_arr_void = malloc(size * (arr_size+1));
-	char* new_arr=(char*)new_arr_void;
-	
-	while(start+i<mid&&mid+j<end){
-		if(compare(arr_1+size*(start+i),arr_1+size*(mid+j))==1){
-			memcpy(new_arr+size*k,arr_1+size*(mid+j),size);
-			j++;
-		}
-		else{
-			memcpy(new_arr+size*k,arr_1+size*(start+i),size);
-			i++;
-		}
-		k++;
-	}
-	
-	if(mid+j<end){
-		memcpy(new_arr+size*k,arr_1+size*(mid+j),size*(arr_size-k));
-	}
-	
-	if(start+i<mid){
-		memcpy(new_arr+size*k,arr_1+size*(start+i),size*(arr_size-k));
-	}
-		
-	memcpy(arr_1+size*start,new_arr,size*arr_size);
-	
-	free(new_arr);
+
+
+
 }
 
-void merge_divide(void *arr, int start, int arr_size,size_t size,int (*compare)(const void *,const void *)){
+void merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare){
 	
 	if(arr_size!=1){
-		
-		merge_divide(arr, start, arr_size/2,size,compare);
-		merge_divide(arr, start+arr_size/2,arr_size-arr_size/2,size,compare);
-		merge_conqure(arr,start,start+arr_size/2,start+arr_size,size,compare);
+		vec1_t* a1, a2;
+		vec1_t* b1, b2;
+		merge_divide(arr, start, arr_size/2, &a1, &b1, compare);
+		merge_divide(arr, start+arr_size/2, (arr_size+1)/2, &a2, &b2, compare);
+		merge_conqure(arr, start, start+arr_size/2, start+arr_size, &a1, &b1, &a2, &b2, compare);
+	}
+
+	if(arr_size==1){
+		vec1_t* arr_vec1 = (vec1_t*) arr;
+		*a = arr_vec1[start];
+		*b = FLT_MAX;
 	}
 	
 }
-void daq_1d(void *arr, size_t nmemb, size_t size, int (*compare)(const void *,const void *),)
-{
-	merge_divide(arr, 0,nmemb,size,compare);
+void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float min_distance, size_t size, compare_t compare){
+	merge_divide(arr, 0,nmemb,a,b, compare);
 
 }
+/********
+ * 
+ * 
 
+
+
+ 나눌땐 반반반반 하면 되는건디
+합치는 과정에서 얻어와야하는 정보가 최소거리, 그 거리를 이루는 두 점
+
+어레이1 시작1 끝1 최소거리1  점11 점12 /// 어레이2 시작2 끝2 최소거리2 점21 점22
+
+어레이1+2 시작1 끝2 최소거리min(1,2,a) 점 점
+
+
+*/
 
 
 /****
