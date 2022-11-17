@@ -1,6 +1,10 @@
 #ifndef KERNEL_H_
 #define KERNEL_H_
 
+
+typedef int (*compare_t)(const void *, const void *);
+
+
 typedef float vec1_t;
 
 typedef struct vec2 {
