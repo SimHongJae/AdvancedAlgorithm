@@ -3,14 +3,14 @@
 #include <stdlib.h>
 #include "kernel.h"
 
+#define min(x, y) (x) < (y) ? (x) : (y)
 
-
-int compare_numbers(const void* lhs, const void* rhs);
-int compare_distances(const void* diff, const void* min);
-void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare);
-void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare);
+float compare_numbers(const void* lhs, const void* rhs);
+float compare_distances(const void* diff, const void* min);
+void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2);
+void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b);
 void merge_sort(void *arr, size_t nmemb, size_t size, compare_t compare);
-
+void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float* min_distance, size_t size);
 
 float get_closest_pair_1d_naive(vec1_t* a, vec1_t* b, const vec1_t* points, const int n_points) {
 	float min_distance = FLT_MAX;
@@ -35,16 +35,27 @@ float get_closest_pair_1d_naive(vec1_t* a, vec1_t* b, const vec1_t* points, cons
 }
 
 float get_closest_pair_1d_daq(vec1_t* a, vec1_t* b, const vec1_t* points, const int n_points) {
-	float min_distance = FLT_MAX;
+	float min_distance;
+	min_distance = FLT_MAX;
 
+	float* min_dist=&min_distance;
+	
 
 
 
 	qsort(points, n_points,sizeof(vec1_t), compare_numbers);
-	daq_1d(points, n_points,sizeof(vec1_t), compare_distances,a,b,min_distance);
 
 
-	// TODO: Fill this!
+	daq_1d(points, n_points, &a, &b, &min_dist, sizeof(vec1_t));
+
+
+
+	min_distance=*min_dist;
+	
+	
+	return min_distance;
+
+		// TODO: Fill this!
 	/*
 	
 	1. 정렬
@@ -54,11 +65,7 @@ float get_closest_pair_1d_daq(vec1_t* a, vec1_t* b, const vec1_t* points, const 
 	디바이드 컨커로 하셈
 
 	*/
-
-	*a = points[i];
-	*b = points[j];
 	
-	return min_distance;
 }
 
 float get_closest_pair_2d_naive(vec2_t* a, vec2_t* b, const vec2_t* points, const int n_points) {
@@ -79,7 +86,7 @@ float get_closest_pair_2d_naive(vec2_t* a, vec2_t* b, const vec2_t* points, cons
 				*b = points[j];
 				
 				min_distance_sq = diff;
-			}
+			}	
 		}
 	}
 	
@@ -185,16 +192,17 @@ float get_closest_pair_3d_daq(vec3_t* a, vec3_t* b, const vec3_t* points, const 
 */
 
 
-int compare_numbers(const void* lhs, const void* rhs)
+float compare_numbers(const void* lhs, const void* rhs)
 {
-	int* lhs_int = (int*)lhs;
-	int* rhs_int = (int*)rhs;
-	if (*lhs_int > *rhs_int)return 1;  //오른이 작으면 1
-	if (*lhs_int == *rhs_int)return 0;  //      같으면 0
-	if (*lhs_int < *rhs_int)return -1;  //왼쪽이 작으면 -1
+	float* lhs_float = (float*)lhs;
+	float* rhs_float = (float*)rhs;
+	if (*lhs_float > *rhs_float)return 1;  //오른이 작으면 1
+	if (*lhs_float == *rhs_float)return 0;  //      같으면 0
+	if (*lhs_float < *rhs_float)return -1;  //왼쪽이 작으면 -1
 
 }
-int compare_distances(const void* diff, const void* min)
+/*
+float compare_distances(const void* diff, const void* min)
 {
 	int* lhs_int = (int*)diff;
 	int* rhs_int = (int*)min;
@@ -204,11 +212,15 @@ int compare_distances(const void* diff, const void* min)
 
 }
 
-void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2, compare_t compare){
+
+
+*/
+
+void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2){
 	
 	vec1_t* arr_vec1 = (vec1_t*) arr;
-	vec1_t* a3,b3;
-	float dist1,dist2,dist3;
+	vec1_t* a3, *b3;
+	float dist1, dist2, dist3;
 
 	*a3= arr_vec1[mid-1];
 	*b3= arr_vec1[mid];
@@ -224,6 +236,15 @@ void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, 
 	 * 
 	*/
 	float min_dist= min(min(dist1,dist2),dist3);
+	if(min_dist==dist1)
+	if(min_dist==dist2){
+		*a1=*a2;
+		*b1=*b2;
+	}
+	if(min_dist==dist3){
+		*a1=*a3;
+		*b1=*b3;
+	}
 
 /****
  * 
@@ -245,14 +266,17 @@ void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, 
 
 }
 
-void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b, compare_t compare){
+void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b){
 	
 	if(arr_size!=1){
 		vec1_t* a1, a2;
 		vec1_t* b1, b2;
-		vec1_merge_divide(arr, start, arr_size/2, &a1, &b1, compare);
-		vec1_merge_divide(arr, start+arr_size/2, (arr_size+1)/2, &a2, &b2, compare);
-		vec1_merge_conqure(arr, start+arr_size/2, &a1, &b1, &a2, &b2, compare);
+		vec1_merge_divide(arr, start, arr_size/2, &a1, &b1);
+		vec1_merge_divide(arr, start+arr_size/2, (arr_size+1)/2, &a2, &b2);
+		vec1_merge_conqure(arr, start+arr_size/2, &a1, &b1, &a2, &b2);
+
+
+
 		*a=*a1;
 		*b=*b1;
 	}
@@ -281,9 +305,13 @@ void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b,
 	}
 	
 }
-void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float min_distance, size_t size, compare_t compare){
-	vec1_merge_divide(arr, 0,nmemb,a,b, compare);
-
+void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float* min_distance, size_t size){
+	//vec1_merge_divide(arr, 0,nmemb,a,b);
+	//float aa = 1000;
+	//float bb=100;
+	//float dist= fabs(aa-bb);
+	*min_distance=1000;
+/////////함수 플롯으로 해서 그냥 하자
 }
 /********
  * 
