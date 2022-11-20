@@ -7,9 +7,14 @@ typedef int (*compare_t)(const void *, const void *);
 
 typedef float vec1_t;
 
+typedef struct vec1_pair {
+	vec1_t a, b;
+} vec1_pair_t;
+
 typedef struct vec2 {
 	float x, y;
 } vec2_t;
+
 
 typedef struct vec3 {
 	float x, y, z;

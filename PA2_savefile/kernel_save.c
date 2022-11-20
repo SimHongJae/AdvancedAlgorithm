@@ -5,12 +5,12 @@
 
 #define min(x, y) (x) < (y) ? (x) : (y)
 
-float compare_numbers(const void* lhs, const void* rhs);
-float compare_distances(const void* diff, const void* min);
-void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2);
-void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b);
+
+vec1_pair_t vec1_merge_conqure(void* arr, int mid, vec1_pair_t p1, vec1_pair_t p2);
+vec1_pair_t vec1_merge_divide(void *arr, int start, int arr_size);
 void merge_sort(void *arr, size_t nmemb, size_t size, compare_t compare);
-void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float* min_distance, size_t size);
+float daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, size_t size);
+int FloatCmp(const void* a, const void* b);
 
 float get_closest_pair_1d_naive(vec1_t* a, vec1_t* b, const vec1_t* points, const int n_points) {
 	float min_distance = FLT_MAX;
@@ -37,25 +37,13 @@ float get_closest_pair_1d_naive(vec1_t* a, vec1_t* b, const vec1_t* points, cons
 float get_closest_pair_1d_daq(vec1_t* a, vec1_t* b, const vec1_t* points, const int n_points) {
 	float min_distance;
 	min_distance = FLT_MAX;
-
-	float* min_dist=&min_distance;
 	
+	qsort(points, n_points,sizeof(vec1_t), FloatCmp);
+	min_distance = daq_1d(points, n_points, a, b, sizeof(vec1_t));
 
-
-
-	qsort(points, n_points,sizeof(vec1_t), compare_numbers);
-
-
-	daq_1d(points, n_points, &a, &b, &min_dist, sizeof(vec1_t));
-
-
-
-	min_distance=*min_dist;
-	
-	
 	return min_distance;
-
-		// TODO: Fill this!
+	
+	
 	/*
 	
 	1. 정렬
@@ -191,102 +179,78 @@ float get_closest_pair_3d_daq(vec3_t* a, vec3_t* b, const vec3_t* points, const 
 
 */
 
-
-float compare_numbers(const void* lhs, const void* rhs)
+int FloatCmp(const void* a, const void* b)
 {
-	float* lhs_float = (float*)lhs;
-	float* rhs_float = (float*)rhs;
-	if (*lhs_float > *rhs_float)return 1;  //오른이 작으면 1
-	if (*lhs_float == *rhs_float)return 0;  //      같으면 0
-	if (*lhs_float < *rhs_float)return -1;  //왼쪽이 작으면 -1
+   float det = *(float*)a > *(float*)b;
 
-}
-/*
-float compare_distances(const void* diff, const void* min)
-{
-	int* lhs_int = (int*)diff;
-	int* rhs_int = (int*)min;
-	if (*lhs_int > *rhs_int)return 1;  //오른이 작으면 1
-	if (*lhs_int == *rhs_int)return 0;  //      같으면 0
-	if (*lhs_int < *rhs_int)return -1;  //왼쪽이 작으면 -1
+   if (det < 0.0)
+       return -1;
+   else if (det > 0.0)
+       return 1;
+   else
+       return 0;
 
+	   /*********
+		* 여기부분은 int로 반환해야하는거엿음!
+	   **********/
 }
 
 
 
 */
 
-void vec1_merge_conqure(void* arr, int mid, vec1_t* a1, vec1_t* b1, vec1_t* a2, vec1_t* b2){
+vec1_pair_t vec1_merge_conqure(void* arr, int mid, vec1_pair_t p1, vec1_pair_t p2){
 	
 	vec1_t* arr_vec1 = (vec1_t*) arr;
-	vec1_t* a3, *b3;
+	vec1_pair_t p3;
 	float dist1, dist2, dist3;
 
-	*a3= arr_vec1[mid-1];
-	*b3= arr_vec1[mid];
+	p3.a= arr_vec1[mid-1];
+	p3.b= arr_vec1[mid];
+		
+	dist1= fabs(p1.a- p1.b);
+	dist2= fabs(p2.a- p2.b);
+	dist3= fabs(p3.a- p3.b);
 
-	dist1= fabs(*a1- *a2);
-	dist2= fabs(*a2- *b2);
-	dist3= fabs(*a3- *b3);
 
-	/*****
-	 * 
-	 * 
-	 * 
-	 * 
-	*/
 	float min_dist= min(min(dist1,dist2),dist3);
 	if(min_dist==dist1)
 	if(min_dist==dist2){
-		*a1=*a2;
-		*b1=*b2;
+		p1=p2;
 	}
 	if(min_dist==dist3){
-		*a1=*a3;
-		*b1=*b3;
+		p1=p3;
 	}
 
-/****
- * 
- * max 비교 하면됨
- * 
-*/
-/********
- * 
- * 
- * r1, r2, rnew 셋 비교해서
- * 길이 작은 점들을
- * a1,b1에 덮어씌우자
- * 
- * 
- * 
-*/
-
-
+	return p1;
 
 }
 
-void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b){
+vec1_pair_t vec1_merge_divide(void *arr, int start, int arr_size){
 	
+	
+	vec1_pair_t p;
 	if(arr_size!=1){
-		vec1_t* a1, a2;
-		vec1_t* b1, b2;
-		vec1_merge_divide(arr, start, arr_size/2, &a1, &b1);
-		vec1_merge_divide(arr, start+arr_size/2, (arr_size+1)/2, &a2, &b2);
-		vec1_merge_conqure(arr, start+arr_size/2, &a1, &b1, &a2, &b2);
+		vec1_pair_t p1, p2;
+		
+		p1 = vec1_merge_divide(arr, start, arr_size/2);
+		p2 = vec1_merge_divide(arr, start+arr_size/2, (arr_size+1)/2);
+		p = vec1_merge_conqure(arr, start+arr_size/2, p1, p2);
 
-
-
-		*a=*a1;
-		*b=*b1;
+		return p;
+		
 	}
 
 	if(arr_size==1){
 		vec1_t* arr_vec1 = (vec1_t*) arr;
-		*a = arr_vec1[start];
-		*b = FLT_MAX;
-
-		/***
+		p.a = arr_vec1[start];
+		p.b = FLT_MAX;
+		
+		return p;
+		
+	}
+	
+	/***
 		 * 
 		 * 고민되는게
 		 * a,b에 넘기는 정보를
@@ -301,49 +265,20 @@ void vec1_merge_divide(void *arr, int start, int arr_size, vec1_t* a, vec1_t* b)
 		 * 그냥 좌표 넘기는걸로 하자
 		 * 
 		 * 
+		 * a,b좌표를 계속 파라미터로 넘겨주니깐 segfault발생
+		 * 리턴을 여러개 받는 방법이 뭐가 있을까 찾아보니 a,b를 구조체로 묶어서 사용하면 되는거였음!
+		 * 룰루~~
+		 * 
+		 * 
 		*/
-	}
-	
+
 }
-void daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, float* min_distance, size_t size){
-	//vec1_merge_divide(arr, 0,nmemb,a,b);
-	//float aa = 1000;
-	//float bb=100;
-	//float dist= fabs(aa-bb);
-	*min_distance=1000;
-/////////함수 플롯으로 해서 그냥 하자
+float daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, size_t size){
+	vec1_pair_t p;
+	p=vec1_merge_divide(arr, 0,nmemb);
+	*a=p.a;
+	*b=p.b;
+
+	return fabs(*a - *b);
+
 }
-/********
- * 
- * 
-
-
-
- 나눌땐 반반반반 하면 되는건디
-합치는 과정에서 얻어와야하는 정보가 최소거리, 그 거리를 이루는 두 점
-
-어레이1 시작1 끝1 최소거리1  점11 점12 /// 어레이2 시작2 끝2 최소거리2 점21 점22
-
-어레이1+2 시작1 끝2 최소거리min(1,2,a) 점 점
-
-
-*/
-
-
-
-/*
-
-qsort( void *base, size_t nel, size_t width, int (*compare)(const void *,const void *));
-base: 배열 포인터
-nel: 배열 각 원소들의 총 수
-width: 배열에서 원소 하나의 크기
-(*compare) : 비교를 수행할 함수 포인터
-
-
-예시 
-qsort(arr,array_size,sizeof(int),compare);
->1
-<-1
-=0 일때 오름차순(1,2,6,14...)
-
-*/
