@@ -86,15 +86,11 @@ float get_closest_pair_2d_naive(vec2_t* a, vec2_t* b, const vec2_t* points, cons
 float get_closest_pair_2d_daq(vec2_t* a, vec2_t* b, const vec2_t* points, const int n_points) {
 	float min_distance_sq = FLT_MAX;
 	
-	
 	qsort(points, n_points,sizeof(vec2_t), Vec2Cmp);
-
-	//printf("\n\n\n");
-	for(int i=0;i<n_points;i++){
-		//printf("%f %f\n",points[i].x,points[i].y);
-	}
-
 	min_distance_sq = daq_2d(points, n_points, a, b, sizeof(vec2_t));
+
+	return sqrtf(min_distance_sq);
+
 
 	/*
 	
@@ -135,7 +131,6 @@ float get_closest_pair_2d_daq(vec2_t* a, vec2_t* b, const vec2_t* points, const 
 	 * 
 	*/
 	
-	return sqrtf(min_distance_sq);
 }
 
 float get_closest_pair_3d_naive(vec3_t* a, vec3_t* b, const vec3_t* points, const int n_points) {
@@ -309,21 +304,18 @@ float daq_1d(void *arr, size_t nmemb ,vec1_t* a, vec1_t* b, size_t size){
 }
 
 
-
-
-
 vec2_pair_t vec2_merge_conqure(void* arr, int start,int arr_size, vec2_pair_t p1, vec2_pair_t p2){
 	
 	vec2_t* arr_vec2 = (vec2_t*) arr;
 	vec2_pair_t min_p, p3;
 	float dist1_sq, dist2_sq, dist3_sq;
-	float min_dist,dist1,dist2,dist3=FLT_MAX;
-	//printf("%f %f %f %f\n",p1.a.x,p1.a.y,p1.b.x,p1.b.y);
-	//printf("%f %f %f %f\n",p2.a.x,p2.a.y,p2.b.x,p2.b.y);
+	float min_dist, dist1, dist2, dist3;
+
 	if(p1.b.x==FLT_MAX && p2.b.x == FLT_MAX ){
 		min_dist= FLT_MAX;
 	}
 	else{
+
 		dist1_sq= (p1.a.x- p1.b.x)*(p1.a.x- p1.b.x)+(p1.a.y- p1.b.y)*(p1.a.y- p1.b.y);
 		dist1=(float)sqrtf((float)dist1_sq);
 		
@@ -332,7 +324,6 @@ vec2_pair_t vec2_merge_conqure(void* arr, int start,int arr_size, vec2_pair_t p1
 
 		min_dist= min(dist1,dist2);
 
-		////printf("min_dist1,2 is %f\n",min_dist);
 		if(min_dist==dist1){
 			min_p=p1;
 		}
@@ -353,58 +344,60 @@ vec2_pair_t vec2_merge_conqure(void* arr, int start,int arr_size, vec2_pair_t p1
 			p3.a= arr_vec2[i];
 			p3.b= arr_vec2[j];
 
-
-
 			dist3_sq= (p3.a.x- p3.b.x)*(p3.a.x- p3.b.x)+(p3.a.y- p3.b.y)*(p3.a.y- p3.b.y);
 			dist3= (float)sqrtf((float)dist3_sq);
-			//printf("dist3 : %f with %d %d\n",dist3,i,j);
-			////printf("Before min_dist = %f at %d %d\n\n",min_dist,i,j);	
+				
 			if(min_dist > dist3){
 				min_dist = dist3;
-				//printf("Changed min_dist = %f at %d %d\n\n",min_dist,i,j);		
-			}
-			
-			
-			if(min_dist==dist3){
 				min_p=p3;
 			}
+
 		}
 	}
 	
 	return min_p;
 
+
+/****************
+ * 
+ * 여기서 더 최적화를 하자면
+ * y에 대해서 정렬하고
+ * x제한 걸었던것처럼 제한 걸어주면 되는데
+ * 이거 하려면 arr하나 더 만들어서 복사하고
+ * 또 qsort못쓰니깐 merge_sort만들어서
+ * ~~~~ 진행해야함
+ * 
+ * 그러므로 3d 만들어내고나서 진행하는걸루
+ * 
+ * 
+*/
 }
 
 vec2_pair_t vec2_merge_divide(void *arr, int start, int arr_size){
 	
-	//printf("doing %d %d\n\n",start,arr_size);
 	vec2_pair_t p;
 	if(arr_size!=1){
+
 		vec2_pair_t p1, p2;
 		
-		//printf("I will %d %d",start,arr_size/2);
 		p1 = vec2_merge_divide(arr, start, arr_size/2);
-		//printf("I will %d %d",start+arr_size/2,(arr_size+1)/2);
 		p2 = vec2_merge_divide(arr, start+arr_size/2, (arr_size+1)/2);
-		//printf("conquring %d %d\n\n",start,arr_size);
 		p = vec2_merge_conqure(arr, start,arr_size, p1, p2);
 
 		float distt_sq= (p.a.x- p.b.x)*(p.a.x- p.b.x)+(p.a.y- p.b.y)*(p.a.y- p.b.y);
 		float distt = (float)sqrtf((float)distt_sq);
-		
-		//printf("conqure result dist : %f at %d~~%d\n\n\n",distt, start,start+arr_size-1);
-		return p;
-		
+
+		return p;	
 	}
 
 	if(arr_size==1){
+
 		vec2_t* arr_vec2 = (vec2_t*) arr;
 		p.a = arr_vec2[start];
 		p.b.x = FLT_MAX;
 		p.b.y = FLT_MAX;
 		
-		return p;
-		
+		return p;	
 	}
 
 }
