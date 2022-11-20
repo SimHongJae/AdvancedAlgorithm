@@ -1,10 +1,3 @@
-/*
-
-
-*
-*
-*
-*/
 // There is nothing to implement further here.
 
 #include <stdio.h>
@@ -56,11 +49,16 @@ void run(float* points, int n_points, enum e_implementation_type implementation_
 
 	switch (dimension) {
 	case ed_1d:
+	
+	
 		min_distance = implementations_1d[implementation_type](
 				(vec1_t*)a,
 				(vec1_t*)b,
 				(const vec1_t*)points,
 				n_points);
+				
+				
+	
 		break;
 	case ed_2d:
 		min_distance = implementations_2d[implementation_type](
@@ -134,10 +132,11 @@ int main(int argc, char** argv)
 	float* points = malloc(sizeof(float) * dimension * n_points);
 
 	srandom(time(NULL));
-
+	//srandom(0xdeadbeef);
 	for (int i = 0; i < n_points; ++i) {
 		for (int j = 0; j < dimension; ++j) {
-			points[dimension*i + j] = (float)(random() % RAND_MAX);
+			points[dimension*i + j] = (float)(random() % RAND_MAX)/10000;
+			
 			/*****
 			
 			

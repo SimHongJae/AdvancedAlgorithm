@@ -15,10 +15,17 @@ typedef struct vec2 {
 	float x, y;
 } vec2_t;
 
+typedef struct vec2_pair {
+	vec2_t a, b;
+} vec2_pair_t;
 
 typedef struct vec3 {
 	float x, y, z;
 } vec3_t;
+
+typedef struct vec3_pair {
+	vec3_t a, b;
+} vec3_pair_t;
 
 float get_closest_pair_1d_naive(vec1_t* a, vec1_t* b,
 		const vec1_t* points, const int n_points);
