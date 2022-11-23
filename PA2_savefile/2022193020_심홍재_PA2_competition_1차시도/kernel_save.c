@@ -1,7 +1,6 @@
 #include <math.h>
 #include <float.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include "kernel.h"
 
 
@@ -183,22 +182,6 @@ int Vec2Cmp(const void* a, const void* b)
 	 
 }
 
-int Vec2CmpY(const void* a, const void* b)
-{
-	vec2_t *aa= (vec2_t*)a;
-	vec2_t *bb= (vec2_t*)b;
-   float det = (*aa).y > (*bb).y;
-
-   if (det < 0.0)
-       return -1;
-   else if (det > 0.0)
-       return 1;
-   else
-       return 0;
-
-	 
-}
-
 int Vec3Cmp(const void* a, const void* b)
 {
 	vec3_t *aaa= (vec3_t*)a;
@@ -343,54 +326,6 @@ vec2_pair_t vec2_daq_conquer(void* arr, int start,int arr_size, vec2_pair_t p1, 
 	}
 
 
-/*
-	int left_start_in_d,right_end_in_d;
-	int copy_arr_size=0;
-	vec2_t copy_arr_vec2[arr_size];
-
-	for(int i=(start + arr_size/2 - 1); i>=start; i--,copy_arr_size++){
-
-		copy_arr_vec2[copy_arr_size]=arr_vec2[i];
-		if(arr_vec2[i].x<arr_vec2[start+arr_size/2].x-min_dist){
-			break;
-		}
-	}
-	
-	for(int j=start+arr_size/2;j<start+arr_size;j++,copy_arr_size++){
-		
-		copy_arr_vec2[copy_arr_size]=arr_vec2[j];
-		if(arr_vec2[j].x>arr_vec2[start+arr_size/2 - 1].x+min_dist){
-			break;
-		}
-
-	}
-	
-
-	qsort(copy_arr_vec2,copy_arr_size,sizeof(vec2_t),Vec2CmpY);
-
-	
-
-	for(int i=0;i<copy_arr_size;i++){
-		for(int j=i+1;j<copy_arr_size;j++){
-			if((copy_arr_vec2[j].y - copy_arr_vec2[i].y)>min_dist){
-				break;
-			}
-
-			p3.a= copy_arr_vec2[i];
-			p3.b= copy_arr_vec2[j];
-
-			dist3= dist_2d(p3.a,p3.b);
-				
-			if(min_dist > dist3){
-				min_dist = dist3;
-				min_p=p3;
-			}	
-		}
-	}
-	
-*/
-
-
 	for(int i=(start + arr_size/2 - 1); i>=start; i--){
 
 		if(arr_vec2[i].x<arr_vec2[start+arr_size/2].x-min_dist)
@@ -412,9 +347,6 @@ vec2_pair_t vec2_daq_conquer(void* arr, int start,int arr_size, vec2_pair_t p1, 
 
 		}
 	}
-
-
-
 	return min_p;
 
 }
