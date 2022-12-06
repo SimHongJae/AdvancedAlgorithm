@@ -1,5 +1,5 @@
 #include "kernel.h"
-#include <time.h>
+#include <sys/time.h>
 
 void sort_elements_by_idx(element *elements, int start, int end) {
     if (start >= end)
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 		// Initializing group ids.
 		for (int j = 0; j < MAX_NGRP; j++)
 			elements[i].groupId[j] = -1;
-	}
+	}                                              	
 
 	/* Run algorithm */
 
