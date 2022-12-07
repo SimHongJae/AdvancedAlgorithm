@@ -80,7 +80,7 @@ void dp(int level,element *elements,int* part_left,int *part_right,int nmemb_lef
         for(int i=0;i<nmemb_left;i++){
             for(int j=0;j<nmemb;j++){
                 if(elementss[j].index==left[i]){
-                    fprintf(stderr,"%d %d 0\n", j,elementss[j].value);
+                  //  fprintf(stderr,"%d %d 0\n", j,elementss[j].value);
                     elementss[j].groupId[num_partitionablee]=0;
                     break;
                 }
@@ -90,7 +90,7 @@ void dp(int level,element *elements,int* part_left,int *part_right,int nmemb_lef
         for(int i=0;i<nmemb_right;i++){
             for(int j=0;j<nmemb;j++){
                 if(elementss[j].index==right[i]){
-                    fprintf(stderr,"%d %d 1\n", j,elementss[j].value);
+                   // fprintf(stderr,"%d %d 1\n", j,elementss[j].value);
                     elementss[j].groupId[num_partitionablee]=1;
                     break;
                 }
@@ -151,7 +151,7 @@ int partition_by_dp(element *elements, int nmemb)
 {
    int half_sum=0;
    int num_partitionable=0;
-    sort_elements(elements, 0,nmemb);
+    sort_elements(elements, 0,nmemb-1);
     for(int i=0;i<nmemb;i++){
         half_sum+=elements[i].value;
     }
